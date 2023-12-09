@@ -20,6 +20,9 @@ import {PointCardPlugin} from "../src/PointCardPlugin.sol";
 import {DeployContracts} from "./utils/DeployContracts.s.sol";
 import {SafeTxConfig} from "./utils/SafeTxConfig.s.sol";
 
+import {Wagerbox} from "../src/ERC20/Wagerbox.sol";
+import {MockPointProtocol} from "../src/protocol/MockPointProtocol.sol";
+
 contract Deploy is Script {
     error SafeTxFailure(bytes reason);
 

@@ -8,12 +8,14 @@ import {OwnerManager} from "@safe/base/OwnerManager.sol";
 import {SafeTransaction, SafeProtocolAction} from "@safe/DataTypes.sol";
 import {IWagerBoxProtocol} from "./protocol/WagerBoxProtocol.sol";
 
+import { console2 } from "lib/forge-std/src/console2.sol";
+
 
 contract PointCardPlugin is BasePluginWithEventMetadata {
 
     IWagerBoxProtocol internal pointManagerProtocol;   // issue point
 
-    bytes4 erc20transferFunction = bytes4(abi.encode("transfer(address,uint256)"));
+    bytes4 erc20transferFunction = bytes4(keccak256(bytes("transfer(address,uint256)")));
 
     error RequireCalledByOwner(address manager, address sender);
     error RequireTransferTransaction();
@@ -65,12 +67,20 @@ contract PointCardPlugin is BasePluginWithEventMetadata {
                 }
                 token = actions[i].to;
             }
+            console2.log("fs==========");
+            console2.logBytes4(erc20transferFunction);
+            console2.log("actual=");
+            console2.logBytes4(fs);
+
+            console2.log("to= %a", to);
+            console2.log("value= %d", value);
 
             if (value == 0 && fs != erc20transferFunction) {
                 revert RequireTransferTransaction();
             }
 
-            if (pointManagerProtocol.isSupportingPaymentAddress(actions[i].to)) {
+            if (pointManagerProtocol.isSupportingPaymentAddress(to)) {
+                console2.log("issue point ==== ");
                 pointManagerProtocol.issuePoint(address(safe), token, value);
             }
         }

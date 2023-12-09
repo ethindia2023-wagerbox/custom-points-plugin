@@ -6,7 +6,7 @@ out/
 !/broadcast
 *broadcast*
 
-./lib/
+lib
 
 # Docs
 docs/

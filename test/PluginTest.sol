@@ -15,7 +15,8 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {Deploy} from "../script/Deploy.s.sol";
 import {SafeTxConfig} from "../script/utils/SafeTxConfig.s.sol";
 
-import {TestToken} from "../src/ERC20/TestToken.sol";
+import {Wagerbox} from "../src/ERC20/Wagerbox.sol";
+import {MockToken} from "../src/ERC20/MockToken.sol";
 import {MockPointProtocol} from "../src/protocol/MockPointProtocol.sol";
 
 /**
@@ -46,7 +47,8 @@ contract PluginTest is Test {
     SafeTxConfig safeTxConfig = new SafeTxConfig();
     SafeTxConfig.Config config = safeTxConfig.run();
 
-    TestToken token = new TestToken();
+    Wagerbox token;
+    MockToken mt;
 
     function getTransactionHash(
         address _to,
@@ -93,13 +95,19 @@ contract PluginTest is Test {
     function setUp() public {
         vm.startPrank(owner);
         vm.selectFork(vm.createFork(vm.envString("GOERLI_RPC_URL")));
-        protocol = new MockPointProtocol();
+        token = new Wagerbox();
+        protocol = new MockPointProtocol(token);
         plugin = new PointCardPlugin(address(protocol));
         registry = new SafeProtocolRegistry(owner);
         manager = new SafeProtocolManager(owner, address(registry));
         singleton = new Safe();
         proxy = new SafeProxy(address(singleton));
         handler = new TokenCallbackHandler();
+
+        mt = new MockToken();
+
+        token.mint(address(protocol), 1000000);
+
         safe = Safe(payable(address(proxy)));
         address[] memory owners = new address[](1);
         owners[0] = owner;
@@ -199,7 +207,7 @@ contract PluginTest is Test {
         ISafe addressSafe = ISafe(address(safe));
         vm.startPrank(owner);
         plugin.executeFromPlugin(manager, addressSafe, tx); 
-        assertEq(protocol.getIssuedPoint(address(safe)), 9);
+        assertEq(protocol.getIssuedPoint(address(safe)), 1);
 
     }
 
@@ -227,13 +235,13 @@ contract PluginTest is Test {
         address dealer = makeAddr("ticket_dealier");
         emit log_named_address("ticket_dealier", dealer);
 
-        token.mint(address(safe), 100);
+        mt.mint(address(safe), 100);
 
         // add dealer
         protocol.addSupportingPaymentAddress(dealer);
 
         SafeProtocolAction[] memory actions = new SafeProtocolAction[](1);
-        actions[0].to = payable(address(token));
+        actions[0].to = payable(address(mt));
         actions[0].data = abi.encodeWithSignature("transfer(address,uint256)", dealer, 10);
 
         SafeTransaction memory tx = SafeTransaction({
@@ -247,7 +255,7 @@ contract PluginTest is Test {
         ISafe addressSafe = ISafe(address(safe));
         vm.startPrank(owner);
         plugin.executeFromPlugin(manager, addressSafe, tx); 
-        assertEq(protocol.getIssuedPoint(address(safe)), 9);
+        assertEq(protocol.getIssuedPoint(address(safe)), 1);
 
     }
 }

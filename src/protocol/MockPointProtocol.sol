@@ -5,9 +5,9 @@ import {IWagerBoxProtocol} from "./WagerBoxProtocol.sol";
 
 import { console2 } from "lib/forge-std/src/console2.sol";
 
-contract MockPointProtocol is IWagerBoxProtocol {
+import { Wagerbox } from "../ERC20/Wagerbox.sol";
 
-    mapping(address => uint256) public pointBalance;        // replace this point with ERC721
+contract MockPointProtocol is IWagerBoxProtocol {
 
     mapping(address => address) public executors;
     mapping(address => bool) public subscribedWallets;
@@ -15,9 +15,15 @@ contract MockPointProtocol is IWagerBoxProtocol {
 
     uint256 internal pointParcentage = 90;
 
+
+    Wagerbox rewardToken;
+
+    constructor(Wagerbox _rewardToken) {
+        rewardToken = _rewardToken;
+    }
+
     function subscribe(address wallet) public {
         executors[wallet] = msg.sender;
-        pointBalance[wallet] = 0;
         subscribedWallets[wallet] = true;
         console2.log("subscribed wallet: %s", wallet);
         console2.log("executor: %s", msg.sender);
@@ -37,7 +43,8 @@ contract MockPointProtocol is IWagerBoxProtocol {
         require(subscribedWallets[wallet], "wallet has not subscribed");
 
         uint256 earnedPoint = (paidValue * (100 - pointParcentage)) / 100; 
-        pointBalance[wallet] += earnedPoint;
+        console2.log("issued point ====>>>> %d", earnedPoint);
+        rewardToken.transferFrom(address(this), wallet, earnedPoint);
     }
 
     function addSupportingPaymentAddress(address to) public {
@@ -51,7 +58,7 @@ contract MockPointProtocol is IWagerBoxProtocol {
     }
 
     function getIssuedPoint(address wallet) public view returns (uint256) {
-        return pointBalance[wallet];
+        return rewardToken.balanceOf(wallet);
     }
 
 }
