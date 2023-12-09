@@ -23,6 +23,8 @@ import {SafeTxConfig} from "./utils/SafeTxConfig.s.sol";
 import {Wagerbox} from "../src/ERC20/Wagerbox.sol";
 import {MockPointProtocol} from "../src/protocol/MockPointProtocol.sol";
 
+import { console2 } from "lib/forge-std/src/console2.sol";
+
 contract Deploy is Script {
     error SafeTxFailure(bytes reason);
 
@@ -65,6 +67,8 @@ contract Deploy is Script {
     }
 
     function run() public {
+        console2.log("Deploy.s.sol: run================================- ");
+
         vm.startBroadcast(vm.envUint("SAFE_OWNER_PRIVATE_KEY"));
         
         (PointCardPlugin plugin, SafeProtocolManager manager, SafeProtocolRegistry registry) = contracts.run(owner);
@@ -79,5 +83,7 @@ contract Deploy is Script {
         sendSafeTx(address(manager), abi.encodeWithSignature("enablePlugin(address,bool)", address(plugin), false), abi.encodePacked(r, s, v));
 
         vm.stopBroadcast();
+
+        console2.log("Deploy.s.sol: run================================- END");
     }
 }

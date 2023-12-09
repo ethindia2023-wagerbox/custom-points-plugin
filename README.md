@@ -28,9 +28,22 @@ The test file provides a `setUp` function which deploys a Safe, a Manager and a 
 The deployment script can be found in `script/Deploy.s.sol`. The functionality is the same as the test `setUp` only it will deploy the contracts to the network you specify in the `.env` file. Run the script with ```source .env && forge script script/Deploy.s.sol:Deploy -vvvv --fork-url $GOERLI_RPC_URL --broadcast```.
 
 
+### Depoyed contract info:
+
+
+== Logs ==
+  Deploy.s.sol: run================================- 
+  DeployContracts.s.sol: run===================
+  SafeProtocolRegistry address= 0xb0b8c7cCc64be9aa9B5712BBEc5a5BD0a3213059
+  SafeProtocolManager address= 0xB5A92EB54CD44C87875Ec8d4e166708ec6CCa61F
+  WagBox address= 0x6169d1F0feF34fF99A92c03134aa57eaf762FeE1
+  MockPointProtocol address= 0x45FF4CCF804572B3bA17081348abf871D8A2e280
+  PointCardPlugin address= 0x091578BAe1A95c0322441509CCA99fC3248F9A5A
+  DeployContracts.s.sol: run=================== end
+  Deploy.s.sol: run================================- END
 
 
 
+source .env && forge script script/Deploy.s.sol:Deploy --rpc-url $GOERLI_RPC_URL  --verifier-url https://mumbai.polygonscan.com/api --broadcast --verify -vvvv
 
-
-
+source .env && forge script script/Deploy.s.sol:Deploy --rpc-url $GOERLI_RPC_URL --broadcast -vvvv
